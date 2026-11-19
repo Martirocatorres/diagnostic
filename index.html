@@ -896,15 +896,22 @@ function showResult() {
       .cta-tertiary:hover{background:var(--bg3);border-color:rgba(201,168,76,.3);box-shadow:0 4px 16px rgba(255,255,255,.04)}
     </style>
 
-    <a href="https://calendly.com/martiniroca/30min" target="_blank" class="cta-card cta-primary" style="text-align:center">
+    <a href="https://calendly.com/martiniroca/30min" target="_blank" class="cta-card cta-primary" style="text-align:center" onclick="trackCTA('Sessio_Gratuita', '${nom}')">
       <p style="font-size:15px;font-weight:700;color:#111;margin-bottom:4px">Sessió gratuïta i sense compromís de 20 min →</p>
       <p style="font-size:13px;color:rgba(0,0,0,0.55);line-height:1.5">Reserva una videotrucada i revisem el teu perfil.</p>
     </a>
 
-    <a href="https://calendly.com/martiniroca/sessio-assessorament-69-h" target="_blank" class="cta-card cta-secondary" style="text-align:center">
+    <div class="cta-card cta-secondary" style="text-align:center;cursor:pointer" onclick="showSessio69()">
       <p style="font-size:15px;font-weight:700;color:var(--ac);margin-bottom:4px">Sessió de consultoria, 69€/h →</p>
       <p style="font-size:13px;color:var(--text3);line-height:1.5">Consultoria i formació a mida</p>
-    </a>
+    </div>
+
+    <div id="sessio69Box" style="display:none;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:16px;margin-bottom:12px;">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:10px">Confirma el teu telèfon i en Martí et contactarà per WhatsApp per acordar la sessió de consultoria:</p>
+      <input type="tel" id="s69Tel" class="field-input" style="margin-bottom:10px" placeholder="6XX XXX XXX">
+      <button class="btn-main" style="margin-top:0" onclick="enviarSessio69('${nom}')">Confirmar telèfon →</button>
+      <div id="s69Ok" style="display:none;margin-top:10px;font-size:13px;color:#1D9E75">✓ Rebut! En Martí t'escriurà aviat per WhatsApp per acordar la sessió.</div>
+    </div>
 
     <div class="cta-card cta-tertiary" style="text-align:center" onclick="showPhoneConfirm()">
       <p style="font-size:14px;font-weight:600;color:var(--text2);margin-bottom:4px">No ho tinc clar</p>
@@ -917,6 +924,8 @@ function showResult() {
       <button class="btn-main" style="margin-top:0" onclick="confirmPhone('${nom}')">Confirmar telèfon →</button>
       <div id="phoneOk" style="display:none;margin-top:10px;font-size:13px;color:#1D9E75">✓ Rebut! En Martí t'escriurà aviat per WhatsApp.</div>
     </div>
+
+    <p style="text-align:center;margin:6px 0 14px"><a href="https://martirocatorres.github.io/tarifes" target="_blank" style="font-size:13px;color:var(--text3)" onclick="trackCTA('Veure_Tarifes', '${nom}')">Veure tots els serveis i tarifes →</a></p>
 
     <div class="footer-note">Sense spam · Sense compromís</div>
   `;
@@ -957,6 +966,44 @@ function confirmPhone(nom) {
     perfil: 'WhatsApp sol·licitat',
     guany_estimat: '',
     tipus: 'WhatsApp_Request'
+  });
+}
+
+function showSessio69() {
+  const b = document.getElementById('sessio69Box');
+  b.style.display = b.style.display === 'none' ? 'block' : 'none';
+  if (b.style.display === 'block') {
+    document.getElementById('s69Tel').value = document.getElementById('telefon').value;
+  }
+}
+
+function enviarSessio69(nom) {
+  const tel = document.getElementById('s69Tel').value.trim();
+  if (!tel) { alert('Si us plau, indica el teu telèfon.'); return; }
+  document.getElementById('s69Ok').style.display = 'block';
+  document.getElementById('s69Tel').disabled = true;
+  sendData({
+    nom, telefon: tel, contacte: document.getElementById('contacte').value,
+    ing: ING_LABELS[+document.getElementById('ing').value],
+    desp: DESP_LABELS[+document.getElementById('desp').value],
+    habitatge: habSel || 'No indicat',
+    estalvis: SAV_LABELS[+document.getElementById('sav').value],
+    puntuacio: answers.filter(a=>a===true).length+'/10',
+    perfil: 'SESSIÓ 69€ SOL·LICITADA (WhatsApp)',
+    guany_estimat: '',
+    tipus: 'Sessio69_Request'
+  });
+}
+
+function trackCTA(opcio, nom) {
+  sendData({
+    nom: nom,
+    telefon: document.getElementById('telefon') ? document.getElementById('telefon').value : '',
+    contacte: document.getElementById('contacte') ? document.getElementById('contacte').value : '',
+    ing: '', desp: '', habitatge: '', estalvis: '',
+    puntuacio: '', perfil: '',
+    guany_estimat: '',
+    tipus: 'CTA_Click_' + opcio
   });
 }
 
